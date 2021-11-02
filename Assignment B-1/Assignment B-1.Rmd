@@ -17,10 +17,14 @@ library(tidyverse)
 library(testthat)
 library(datateachr)
 ```
-I will take a look at the data set, "flow_sample," before creating a function. 
+
+For the following exercises, I want to use a pivoted version of "flow_sample" that would make executing my function much simpler. 
 
 ```{r}
-glimpse(flow_sample)
+pivoted_flow_sample <- flow_sample$datateachr %>%
+  tidyverse::pivot_wider(year, names_from = extreme_type, values_from = flow)
+
+head(pivoted_flow_sample)
 ```
 
 ## Exercise 1 & 2. Make & Document Functions 
@@ -37,15 +41,12 @@ Wrapper
 #' @param c is "extreme_type" as a column to get the names from 
 #' @param d is "flow" as a column to get the cell values from. 
 #' @return wrapper is a pivoted table including year, maximum and minimum flow values. 
+#' @example Pivot_func(a = flow_sample, b = "year", c = "extreme_type", d = "flow")
 
 Pivot_func <- function(a, b, c, d) {
   wrapper <- a%>% pivot_wider(id_cols = b, names_from = c, values_from = d)
   return(wrapper)
 }
-```
-
-```{r}
-Pivot_func(a = flow_sample, b = "year", c = "extreme_type", d = "flow")
 ```
 
 
@@ -69,25 +70,27 @@ annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
 
 ```{r}
 #notes from class 
-annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
+annual_flow_gap <- function (data, x, y, remove_na = TRUE) {
   calculations <- dplyr::summarise(data,
                                    is_numeric_x = is.numeric({{x}}),
                                    class_x = class({{x}}),
                                     is_numeric_y = is.numeric({{y}}),
                                    class_y = class({{y}}))
-  print(calculations)
   if(!calculations$is_numeric_y && calculations$is_numeric_x) {
     stop("Selected column is not numeric. Class of x is: ", 
          calculations$class_x, 
          "Class of y is: ",
          calculations$class_y)
   }
-    summarise(flow_gap = x - y) 
-    return(flow_gap)
+  dplyr::summarise(flow_gap = {{x - y}}) 
+  return(flow_gap)
 }
 ```
 Finally, the function below plots the graph of the annual differences between maximum and minimum flows. 
 ```{r}
+#' Title: A function to plot flow gaps
+#' 
+#' 
 #' This function is to plot a graph of 
 #' annual differences between the maximum and minimum flow values. 
 #'
@@ -95,6 +98,8 @@ Finally, the function below plots the graph of the annual differences between ma
 #' @param year is the year cell value. 
 #' @param delta is the difference between maximum and minimum flows. 
 #' @return output is the graph with x-axis as year and y-axis as the delta values. 
+#' @examples
+#' plot_annual_flow_gap()0
 
 plot_annual_flow_gap <- function (df, year, delta, na.rm = TRUE) {
   df %>%
