@@ -67,7 +67,25 @@ annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
 ```
 
 
-
+```{r}
+#notes from class 
+annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
+  calculations <- dplyr::summarise(data,
+                                   is_numeric_x = is.numeric({{x}}),
+                                   class_x = class({{x}}),
+                                    is_numeric_y = is.numeric({{y}}),
+                                   class_y = class({{y}}))
+  print(calculations)
+  if(!calculations$is_numeric_y && calculations$is_numeric_x) {
+    stop("Selected column is not numeric. Class of x is: ", 
+         calculations$class_x, 
+         "Class of y is: ",
+         calculations$class_y)
+  }
+    summarise(flow_gap = x - y) 
+    return(flow_gap)
+}
+```
 Finally, the function below plots the graph of the annual differences between maximum and minimum flows. 
 ```{r}
 #' This function is to plot a graph of 
