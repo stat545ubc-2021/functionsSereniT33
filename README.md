@@ -1,12 +1,12 @@
 
-# STAT 545 Assignment B-1 Making a function
+# STAT 545B Assignment
 ## Author: Serena Seoyeon Choi
 ## Date: November 1st, 2021
 
 ### Overview
 
 
-This repository includes assginments  for the STAT 545B Data Analysis course. 
+This repository includes assignments (currently, B-1)  for the STAT 545B Data Analysis course. 
 Instruction for the assignment can be found [here] (https://stat545.stat.ubc.ca/assignments/assignment-b1/). 
 
 ### Documents 
