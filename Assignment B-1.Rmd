@@ -17,41 +17,75 @@ library(tidyverse)
 library(testthat)
 library(datateachr)
 ```
-
-For this analysis, I would like to use "flow_sample" dataset. 
+I will take a look at the data set, "flow_sample," before creating a function. 
 
 ```{r}
 glimpse(flow_sample)
 ```
 
-## Exercise 1. Make a Function
+## Exercise 1 & 2. Make & Document Functions 
 
-I will define a function "annual_flow_gap" as the difference between annual maximum flow and minimum flow. 
+
+Wrapper
+```{r}
+#' This function is a wrapper for the following delta function [annual_flow_gap] below. The purpose
+#' of this wrapper is to pivot the existing tibble into a simpler form, containing
+#' year, maximum flow values, and minimum flow values.
+#'
+#' @param a is a data set to pivot from. 
+#' @param b is "year" as a column that identifies each observation. 
+#' @param c is "extreme_type" as a column to get the names from 
+#' @param d is "flow" as a column to get the cell values from. 
+#' @return wrapper is a pivoted table including year, maximum and minimum flow values. 
+
+Pivot_func <- function(a, b, c, d) {
+  wrapper <- a%>% pivot_wider(id_cols = b, names_from = c, values_from = d)
+  return(wrapper)
+}
+```
 
 ```{r}
+Pivot_func(a = flow_sample, b = "year", c = "extreme_type", d = "flow")
+```
+
+
+I will define a function "annual_flow_gap" as the difference between annual maximum flow and minimum flow.
+```{r}
+#' This function is to find a delta value, which is the difference
+#' between the annual maximum flow and minimum flow. 
+#'
+#' @param data is a data set to use. 
+#' @param x is the maximum flow value. 
+#' @param y is the minimum flow value. 
+#' @return "flow_gap" creates the table of outputs that are the difference between maximum and minimum flows for each year. 
+
 annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
   data %>%
-    group_by(x) %>%
-    summarise(flow_gap = max(y) - min(y)) %>%
-    ggplot(aes(x = x, y = flow_gap)) +
+    summarise(flow_gap = x - y) 
+    return(flow_gap)
+}
+```
+
+
+
+Finally, the function below plots the graph of the annual differences between maximum and minimum flows. 
+```{r}
+#' This function is to plot a graph of 
+#' annual differences between the maximum and minimum flow values. 
+#'
+#' @param df is a data set to use. 
+#' @param year is the year cell value. 
+#' @param delta is the difference between maximum and minimum flows. 
+#' @return output is the graph with x-axis as year and y-axis as the delta values. 
+
+plot_annual_flow_gap <- function (df, year, delta, na.rm = TRUE) {
+  df %>%
+    ggplot(aes(x = year, y = delta)) +
     geom_line()
-  
-annual_flow_gap(flow_sample, 1990, flow)
+}
 ```
 
 
+## Exercise 3. Include examples
 
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Exercise 4. Test Functions 
