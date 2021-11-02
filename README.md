@@ -6,7 +6,7 @@
 ### Overview
 
 
-This repository includes the Assignment B-1 for the STAT 545 Data Analysis course. 
+This repository includes assginments  for the STAT 545B Data Analysis course. 
 Instruction for the assignment can be found [here] (https://stat545.stat.ubc.ca/assignments/assignment-b1/). 
 
 ### Documents 
@@ -15,7 +15,8 @@ Instruction for the assignment can be found [here] (https://stat545.stat.ubc.ca/
 This repository contains the following documents: 
 
 1. A README file - containing information about the repository. 
-2. A Rmd file - containing all the codes for the assignment. 
+2. Folders - leading to each assignment. 
+3. Rmd files within folders - containing all the codes for the assignments. 
 
 ### Running the code
 

@@ -1,0 +1,57 @@
+---
+title: "Assignment B-1"
+author: "Serena Choi"
+date: "11/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load pacakges & Choose dataset
+
+We will first load the required packages. 
+```{r}
+library(tidyverse)
+library(testthat)
+library(datateachr)
+```
+
+For this analysis, I would like to use "flow_sample" dataset. 
+
+```{r}
+glimpse(flow_sample)
+```
+
+## Exercise 1. Make a Function
+
+I will define a function "annual_flow_gap" as the difference between annual maximum flow and minimum flow. 
+
+```{r}
+annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
+  data %>%
+    group_by(x) %>%
+    summarise(flow_gap = max(y) - min(y)) %>%
+    ggplot(aes(x = x, y = flow_gap)) +
+    geom_line()
+  
+annual_flow_gap(flow_sample, 1990, flow)
+```
+
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
