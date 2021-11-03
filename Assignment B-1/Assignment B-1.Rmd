@@ -2,7 +2,7 @@
 title: "Assignment B-1"
 author: "Serena Choi"
 date: "11/1/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -18,11 +18,17 @@ library(testthat)
 library(datateachr)
 ```
 
-For the following exercises, I want to use a pivoted version of "flow_sample" that would make executing my function much simpler. 
+For the following exercises, I will use a pivoted version of "flow_sample" that would make executing my function much easier. I will call this new data frame as "pivoted_flow_sample". 
+```{r}
+glimpse(flow_sample)
+```
 
 ```{r}
-pivoted_flow_sample <- flow_sample$datateachr %>%
-  tidyverse::pivot_wider(year, names_from = extreme_type, values_from = flow)
+pivoted_flow_sample <- flow_sample %>%
+  pivot_wider("year", names_from = "extreme_type", values_from = "flow") %>%
+  group_by(year) %>%
+  mutate(maximum = as.numeric(maximum)) %>%
+  mutate(minimum = as.numeric(minimum)) 
 
 head(pivoted_flow_sample)
 ```
@@ -30,28 +36,10 @@ head(pivoted_flow_sample)
 ## Exercise 1 & 2. Make & Document Functions 
 
 
-Wrapper
-```{r}
-#' This function is a wrapper for the following delta function [annual_flow_gap] below. The purpose
-#' of this wrapper is to pivot the existing tibble into a simpler form, containing
-#' year, maximum flow values, and minimum flow values.
-#'
-#' @param a is a data set to pivot from. 
-#' @param b is "year" as a column that identifies each observation. 
-#' @param c is "extreme_type" as a column to get the names from 
-#' @param d is "flow" as a column to get the cell values from. 
-#' @return wrapper is a pivoted table including year, maximum and minimum flow values. 
-#' @example Pivot_func(a = flow_sample, b = "year", c = "extreme_type", d = "flow")
-
-Pivot_func <- function(a, b, c, d) {
-  wrapper <- a%>% pivot_wider(id_cols = b, names_from = c, values_from = d)
-  return(wrapper)
-}
-```
-
-
 I will define a function "annual_flow_gap" as the difference between annual maximum flow and minimum flow.
 ```{r}
+#'Annual flow gap function (annual_flow_gap)
+#'
 #' This function is to find a delta value, which is the difference
 #' between the annual maximum flow and minimum flow. 
 #'
@@ -59,56 +47,61 @@ I will define a function "annual_flow_gap" as the difference between annual maxi
 #' @param x is the maximum flow value. 
 #' @param y is the minimum flow value. 
 #' @return "flow_gap" creates the table of outputs that are the difference between maximum and minimum flows for each year. 
+#' @example annual_flow_gap(pivoted_flow_sample, pivoted_flow_sample$maximum , pivoted_flow_sample$minimum)
 
-annual_flow_gap <- function (data, x, y, na.rm = TRUE) {
-  data %>%
-    summarise(flow_gap = x - y) 
-    return(flow_gap)
+annual_flow_gap <- function (data, x, y) {
+  delta_wrap <- data %>% summarise(delta = data[[{{x}}]] - data[[{{y}}]])   %>%
+    drop_na()
+  return(delta_wrap)
 }
+
 ```
 
 
 ```{r}
-#notes from class 
-annual_flow_gap <- function (data, x, y, remove_na = TRUE) {
-  calculations <- dplyr::summarise(data,
-                                   is_numeric_x = is.numeric({{x}}),
-                                   class_x = class({{x}}),
-                                    is_numeric_y = is.numeric({{y}}),
-                                   class_y = class({{y}}))
-  if(!calculations$is_numeric_y && calculations$is_numeric_x) {
-    stop("Selected column is not numeric. Class of x is: ", 
-         calculations$class_x, 
-         "Class of y is: ",
-         calculations$class_y)
-  }
-  dplyr::summarise(flow_gap = {{x - y}}) 
-  return(flow_gap)
-}
+flow_gap_result <- annual_flow_gap(data = pivoted_flow_sample, x = "maximum", y = "minimum") 
+head(flow_gap_result)
 ```
-Finally, the function below plots the graph of the annual differences between maximum and minimum flows. 
-```{r}
-#' Title: A function to plot flow gaps
-#' 
-#' 
-#' This function is to plot a graph of 
-#' annual differences between the maximum and minimum flow values. 
-#'
-#' @param df is a data set to use. 
-#' @param year is the year cell value. 
-#' @param delta is the difference between maximum and minimum flows. 
-#' @return output is the graph with x-axis as year and y-axis as the delta values. 
-#' @examples
-#' plot_annual_flow_gap()0
-
-plot_annual_flow_gap <- function (df, year, delta, na.rm = TRUE) {
-  df %>%
-    ggplot(aes(x = year, y = delta)) +
-    geom_line()
-}
-```
-
 
 ## Exercise 3. Include examples
 
+example 1: when x is not a numeric value, you get an error. 
+```{r, error = TRUE}
+example_1 <- annual_flow_gap(flow_sample, x = "sym", y = "flow")
+
+```
+
+example 2: when y is not a numeric value, you get an error. 
+```{r, error = TRUE}
+example_2 <- annual_flow_gap(flow_sample, x = "flow", y = "extreme_type")
+```
+
+example 3: Using a different data frame, "mtcars", I will find differences between two numerical values.  
+```{r}
+glimpse(mtcars)
+example_3 <- annual_flow_gap(mtcars, x = "disp", y = "hp")
+head(example_3)
+```
+
 ## Exercise 4. Test Functions 
+When we run the function to the data frame, the created column name is delta. 
+```{r}
+test_that("Column name is delta", {
+  expect_named(annual_flow_gap(data = pivoted_flow_sample, x = "maximum", y = "minimum"), c("year", "delta"))
+})
+```
+
+When we run the data set with non-numeric values, we expect errors. 
+```{r}
+test_that("Has a error due to non-numeric values", {
+  expect_error(annual_flow_gap(flow_sample, x = "sym", y = "flow"))
+})
+```
+
+When we run the function to the data frame, the vector length is always 2. 
+```{r} 
+test_that("Vector of length 2", {
+  expect_length(annual_flow_gap(data = pivoted_flow_sample, x = "maximum", y = "minimum"), 2)
+})
+  
+```
